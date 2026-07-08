@@ -1,2 +1,2 @@
-# rdastudio-site-
+# rdastudio-site
 Site do projeto RDAStudio
