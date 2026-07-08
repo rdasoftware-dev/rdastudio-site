@@ -16,7 +16,6 @@ O RDAStudio IDE é uma IDE moderna, minimalista e de janela única para o ecossi
 - **Compilação cruzada com um clique:** Linux, Windows e Android a partir do mesmo código-fonte
 - **Assistente de IA integrado:** Avatares flutuantes (Ursinho ou Professor) que auxiliam no aprendizado
 - **Pipeline Android simplificado:** FPC + NativeActivity + Gradle, sem escrever Java/Kotlin
-- **Modo Avançado oculto:** Configurações complexas acessíveis apenas para quem precisa
 
 ### Plataformas
 
