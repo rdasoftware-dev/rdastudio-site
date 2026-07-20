@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDA Studio - Serviços em Mercúrio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 100% 0%, #3a0000 0%, #140505 40%, #000000 100%);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            opacity: 0;
+            animation: fadeInCinematic 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        /* BOTÃO SATÉLITE UNIVERSAL (TOPO DIREITO) */
+        .btn-satelite-topo {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 55px;
+            height: 55px;
+            z-index: 9999;
+            background: rgba(40, 10, 0, 0.7);
+            border: 2px solid #ff5500;
+            border-radius: 50%;
+            padding: 8px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
+        }
+        .btn-satelite-topo:hover {
+            transform: scale(1.15) rotate(20deg);
+            box-shadow: 0 0 25px #ff5500;
+        }
+
+        @keyframes fadeInCinematic { from { opacity: 0; } to { opacity: 1; } }
+        .page-fade-out { animation: fadeOutCinematic 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeOutCinematic { to { opacity: 0.25; filter: blur(12px); } }
+
+        .container-espacial { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+        svg { width: 100%; height: 100%; max-width: 1100px; max-height: 1100px; }
+        
+        /* ANIMAÇÃO DE ROTAÇÃO MAIS RÁPIDA EXCLUSIVA DA ENGRENAGEM */
+        .engrenagem-rotacionador {
+            transform-origin: 600px 600px;
+            animation: engrenagemGiroRapido 10s linear infinite;
+        }
+        
+        /* ANIMAÇÃO DE ZOOM COMPARTILHADA DA ESTRUTURA */
+        .engrenagem-zoom-container {
+            transform-origin: 600px 600px;
+            animation: zoomEngrenagem 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes engrenagemGiroRapido {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes zoomEngrenagem {
+            0% { transform: scale(0.65); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* TEXTOS E FONTES AMPLIADAS */
+        .hud-texto {
+            font-size: 16px;
+            fill: #ff9977;
+            font-family: monospace;
+            opacity: 0.95;
+        }
+
+        .hud-titulo-painel {
+            font-family: sans-serif;
+            font-weight: 900;
+            font-size: 24px; 
+            fill: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .marca-interna {
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+        }
+        .marca-interna.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BOTÃO UNIVERSAL SATÉLITE -->
+    <a href="index.html" class="btn-satelite-topo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="40" width="20" height="20" rx="3" fill="#e2e8f0" stroke="#4a5568" stroke-width="2"/>
+            <path d="M 10,45 L 40,48 L 40,52 L 10,55 Z" fill="#3182ce" stroke="#1a365d" stroke-width="1"/>
+            <path d="M 90,45 L 60,48 L 60,52 L 90,55 Z" fill="#3182ce" stroke="#1a365d" stroke-width="1"/>
+            <circle cx="50" cy="26" r="7" fill="#cbd5e1" stroke="#4a5568" stroke-width="1.5"/>
+            <line x1="50" y1="40" x2="50" y2="33" stroke="#4a5568" stroke-width="2"/>
+        </svg>
+    </a>
+
+    <div class="container-espacial">
+        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg" oncontextmenu="return false;">
+            <defs>
+                <filter id="brilho-solar" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="35" result="blur" />
+                    <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+
+                <radialGradient id="sol-mercurio" cx="100%" cy="0%" r="90%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="20%" stop-color="#ffcc00"/>
+                    <stop offset="50%" stop-color="#ff3300" stop-opacity="0.8"/>
+                    <stop offset="80%" stop-color="#2a0000" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+                </radialGradient>
+
+                <radialGradient id="mercurio-corpo" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#6c757d" />
+                    <stop offset="70%" stop-color="#343a40" />
+                    <stop offset="100%" stop-color="#1c1f22" />
+                </radialGradient>
+
+                <linearGradient id="metal-engrenagem" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff8844" />
+                    <stop offset="50%" stop-color="#4e555c" />
+                    <stop offset="100%" stop-color="#111113" />
+                </linearGradient>
+            </defs>
+
+            <rect x="0" y="0" width="1200" height="1200" fill="url(#sol-mercurio)" filter="url(#brilho-solar)"/>
+            <circle cx="1000" cy="900" r="180" fill="url(#mercurio-corpo)" opacity="0.85"/>
+
+            <g stroke="#ff3300" stroke-width="0.5" opacity="0.15" fill="none">
+                <path d="M 0,300 L 1200,300 M 0,600 L 1200,600 M 0,900 L 1200,900"/>
+                <path d="M 300,0 L 300,1200 M 600,0 L 600,1200 M 900,0 L 900,1200"/>
+            </g>
+
+            <!-- CONTAINER CENTRAL (Aplica o Zoom Geral de forma síncrona) -->
+            <g class="engrenagem-zoom-container">
+                
+                <!-- SUBGRUPO ROTATIVO: APENAS A ENGRENAGEM GIRA -->
+                <g class="engrenagem-rotacionador">
+                    <path d="M 600,350 L 620,300 L 660,310 L 670,360 L 720,380 L 760,340 L 790,360 L 780,410 L 820,450 L 870,430 L 890,460 L 860,500 L 880,550 L 930,560 L 930,600 L 880,610 L 870,660 L 910,690 L 890,720 L 840,710 L 810,750 L 840,790 L 810,810 L 760,790 L 720,810 L 720,860 L 680,870 L 660,820 L 610,820 L 590,870 L 550,860 L 550,810 L 500,790 L 460,830 L 430,810 L 440,760 L 400,720 L 350,740 L 330,710 L 360,670 L 340,620 L 290,610 L 290,570 L 340,560 L 350,510 L 310,480 L 330,450 L 380,460 L 410,420 L 380,380 L 410,350 L 460,370 L 500,350 L 500,300 L 540,290 L 550,340 Z" fill="url(#metal-engrenagem)" stroke="#ff8844" stroke-width="2"/>
+                    <circle cx="600" cy="600" r="180" fill="#0c0202" stroke="#ff8844" stroke-width="3"/>
+                    <circle cx="600" cy="600" r="135" fill="none" stroke="#ff3300" stroke-width="1" stroke-dasharray="10,15"/>
+                    <path d="M 600,420 L 600,450 M 600,750 L 600,780 M 420,600 L 450,600 M 750,600 L 780,600" stroke="#ff8844" stroke-width="6" stroke-linecap="round"/>
+                </g>
+
+                <!-- SUBGRUPO ESTÁTICO: OS ÍCONES FICAM PARADOS NO MEIO -->
+                <g id="marcasEstaticas Centradas">
+                    <!-- Linux Pinguim -->
+                    <g id="logoLinux" class="marca-interna active" transform="translate(540, 535) scale(1.2)">
+                        <path d="M50,10 C35,10 25,25 25,45 C25,55 28,65 32,70 C28,75 20,80 10,82 C22,85 32,80 36,75 C42,79 48,80 50,80 C52,80 58,79 64,75 C68,80 78,85 90,82 C80,80 72,75 68,70 C72,65 75,55 75,45 C75,25 65,10 50,10 Z" fill="#ffffff"/>
+                        <path d="M50,15 C38,15 30,27 30,45 C30,62 38,75 50,75 C62,75 70,62 70,45 C70,27 62,15 50,15 Z" fill="#1e293b"/>
+                        <ellipse cx="42" cy="32" rx="5" ry="7" fill="#ffffff"/>
+                        <circle cx="42" cy="32" r="2.5" fill="#000000"/>
+                        <ellipse cx="58" cy="32" rx="5" ry="7" fill="#ffffff"/>
+                        <circle cx="58" cy="32" r="2.5" fill="#000000"/>
+                        <polygon points="45,42 55,42 50,52" fill="#eab308"/>
+                        <path d="M25,80 Q50,95 75,80 C70,88 60,92 50,92 C40,92 30,88 25,80 Z" fill="#eab308"/>
+                    </g>
+                    <!-- Android Droid -->
+                    <g id="logoAndroid" class="marca-interna" transform="translate(545, 540) scale(1.1)">
+                        <path d="M10,35 L10,65 A5,5 0 0,0 20,65 L20,35 A5,5 0 0,0 10,35 Z" fill="#a7f3d0"/>
+                        <path d="M80,35 L80,65 A5,5 0 0,0 90,65 L90,35 A5,5 0 0,0 80,35 Z" fill="#a7f3d0"/>
+                        <path d="M25,32 L65,32 L65,68 A4,4 0 0,1 61,72 L29,72 A4,4 0 0,1 25,68 Z" fill="#a7f3d0"/>
+                        <path d="M25,28 A20,20 0 0,1 65,28 Z" fill="#a7f3d0"/>
+                        <circle cx="37" cy="18" r="2.5" fill="#0f172a"/>
+                        <circle cx="53" cy="18" r="2.5" fill="#0f172a"/>
+                        <line x1="32" y1="10" x2="26" y2="3" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="58" y1="10" x2="64" y2="3" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round"/>
+                        <rect x="32" y="72" width="6" height="15" rx="3" fill="#a7f3d0"/>
+                        <rect x="52" y="72" width="6" height="15" rx="3" fill="#a7f3d0"/>
+                    </g>
+                </g>
+            </g>
+
+            <!-- RETÂNGULOS DOS PAINÉIS HUD AMPLIADOS PARA EVITAR ULTRAPASSAGEM DE TEXTO -->
+            <g transform="translate(50, 180)">
+                <rect x="0" y="0" width="510" height="180" rx="10" fill="#140707" stroke="#ff4400" stroke-width="2" opacity="0.92"/>
+                <text x="35" y="48" class="hud-titulo-painel">COMPILAÇÃO LINUX</text>
+                <text x="35" y="95" class="hud-texto">🔧 Cross-compilação integrada e direta nativa;</text>
+                <text x="35" y="135" class="hud-texto">📦 Geração automatizada de binários limpos.</text>
+            </g>
+
+            <g transform="translate(50, 440)">
+                <rect x="0" y="0" width="510" height="180" rx="10" fill="#140707" stroke="#ff7700" stroke-width="2" opacity="0.92"/>
+                <text x="35" y="48" class="hud-titulo-painel">AMBIENTE ANDROID</text>
+                <text x="35" y="95" class="hud-texto">📱 Preview via emulador de baixa latência;</text>
+                <text x="35" y="135" class="hud-texto">🤖 Deploy simplificado completo para APK/AAB.</text>
+            </g>
+
+            <g transform="translate(50, 700)">
+                <rect x="0" y="0" width="510" height="200" rx="10" fill="#140707" stroke="#ffcc00" stroke-width="2" opacity="0.92"/>
+                <text x="35" y="48" class="hud-titulo-painel">ARQUITETURA HÍBRIDA</text>
+                <text x="35" y="95" class="hud-texto">"Desenvolva para Linux, Windows e Android</text>
+                <text x="35" y="132" class="hud-texto">sem migrar do seu ecossistema principal."</text>
+                <text x="35" y="168" class="hud-texto" fill="#ffcc00">Suporte a múltiplos targets síncronos.</text>
+            </g>
+        </svg>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const linuxLogo = document.getElementById("logoLinux");
+            const androidLogo = document.getElementById("logoAndroid");
+            let mostraLinux = true;
+
+            setInterval(() => {
+                if (mostraLinux) {
+                    linuxLogo.classList.remove("active");
+                    setTimeout(() => androidLogo.classList.add("active"), 400);
+                } else {
+                    androidLogo.classList.remove("active");
+                    setTimeout(() => linuxLogo.classList.add("active"), 400);
+                }
+                mostraLinux = !mostraLinux;
+            }, 6000);
+
+            window.addEventListener('contextmenu', e => e.preventDefault(), false);
+        });
+    </script>
+</body>
+</html>
+

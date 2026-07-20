@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDA Studio - Contatos em Saturno</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 30% 30%, #111a2e 0%, #03070d 60%, #000000 100%);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #ffffff;
+            opacity: 0;
+            animation: fadeInCinematic 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        /* BOTÃO SATÉLITE UNIVERSAL (FORÇADO NA CAMADA DA FRENTE) */
+        .btn-satelite-topo {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 55px;
+            height: 55px;
+            z-index: 999999; /* Camada máxima absoluta */
+            background: rgba(10, 20, 45, 0.7);
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            padding: 8px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-satelite-topo svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .btn-satelite-topo:hover {
+            transform: scale(1.15) rotate(20deg);
+            box-shadow: 0 0 25px #3b82f6;
+        }
+
+        @keyframes fadeInCinematic { from { opacity: 0; } to { opacity: 1; } }
+        .page-fade-out { animation: fadeOut 1.2s forwards; }
+        @keyframes fadeOut { to { opacity: 0; filter: blur(15px); } }
+
+        .container-espacial { 
+            width: 100%; 
+            height: 100%; 
+            position: relative;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            padding: 0 5%;
+        }
+
+        /* PLANETA DIMINUÍDO E FIXADO CONSTANTE NO TOPO */
+        .canvas-saturno {
+            position: absolute;
+            left: 50%;
+            top: -5%;
+            transform: translateX(-50%);
+            width: 450px;
+            height: 450px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ANIMAÇÃO SUTIL DE MOVIMENTO ORBITAL DOS ANÉIS */
+        .saturno-aneis-movimento {
+            transform-origin: 400px 500px;
+            animation: orbitaSubtil 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes orbitaSubtil {
+            0% { 
+                transform: scale(0.97) rotate(-1deg); 
+                opacity: 0.8;
+            }
+            100% { 
+                transform: scale(1.02) rotate(1deg); 
+                opacity: 1;
+            }
+        }
+
+        /* FORMULÁRIO ESPACIAL HOLOGRÁFICO */
+        .form-container-hologram {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(7, 12, 24, 0.85);
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(59, 130, 246, 0.15);
+            border-radius: 16px;
+            padding: 35px;
+            backdrop-filter: blur(12px);
+            user-select: auto;
+            margin-top: 120px;
+        }
+
+        .form-container-hologram h2 {
+            font-size: 26px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: monospace;
+            color: #a5b4fc;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            user-select: auto;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .form-group textarea {
+            resize: none;
+            height: 110px;
+        }
+
+        .btn-enviar-hud {
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-enviar-hud:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BOTÃO INTERATIVO UNIVERSAL SATÉLITE -->
+    <a href="index.html" class="btn-satelite-topo" title="Voltar ao Início">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="40" width="20" height="20" rx="3" fill="#e2e8f0" stroke="#4a5568" stroke-width="2"/>
+            <path d="M 10,45 L 40,48 L 40,52 L 10,55 Z" fill="#3182ce" stroke="#1a365d" stroke-width="1"/>
+            <path d="M 90,45 L 60,48 L 60,52 L 90,55 Z" fill="#3182ce" stroke="#1a365d" stroke-width="1"/>
+            <circle cx="50" cy="26" r="7" fill="#cbd5e1" stroke="#4a5568" stroke-width="1.5"/>
+            <line x1="50" y1="40" x2="50" y2="33" stroke="#4a5568" stroke-width="2"/>
+        </svg>
+    </a>
+
+    <div class="container-espacial">
+        
+        <!-- PLANETA SATURNO EM SVG -->
+        <svg class="canvas-saturno" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="gradSaturnoReal" cx="35%" cy="35%" r="65%">
+                    <stop offset="0%" stop-color="#fcefd2" />
+                    <stop offset="40%" stop-color="#e3c694" />
+                    <stop offset="75%" stop-color="#b89763" />
+                    <stop offset="100%" stop-color="#47381d" />
+                </radialGradient>
+                
+                <linearGradient id="aneisFrenteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#e3c694" stop-opacity="0.0"/>
+                    <stop offset="25%" stop-color="#fcefd2" stop-opacity="0.85"/>
+                    <stop offset="45%" stop-color="#d9b67e" stop-opacity="0.95"/>
+                    <stop offset="50%" stop-color="#2b2211" stop-opacity="0.9"/>
+                    <stop offset="60%" stop-color="#c4a066" stop-opacity="0.8"/>
+                    <stop offset="85%" stop-color="#8c6d3b" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+
+            <!-- Sistema Estabilizado (Não gira mais a estrutura inteira) -->
+            <g>
+                <!-- Anéis Traseiros (Movimento Sutil Sincronizado) -->
+                <g class="saturno-aneis-movimento">
+                    <ellipse cx="400" cy="500" rx="460" ry="140" fill="url(#aneisFrenteGrad)" transform="rotate(-18 400 500)" opacity="0.45"/>
+                    <ellipse cx="400" cy="500" rx="400" ry="115" fill="none" stroke="#6b532d" stroke-width="6" transform="rotate(-18 400 500)" opacity="0.3"/>
+                </g>
+
+                <!-- Globo de Saturno (Fixo no centro do SVG) -->
+                <circle cx="400" cy="500" r="210" fill="url(#gradSaturnoReal)"/>
+                
+                <!-- Faixas Atmosféricas (Fixas) -->
+                <path d="M 205,440 C 300,470 500,470 595,440 C 580,420 320,420 205,440 Z" fill="#cca468" opacity="0.35"/>
+                <path d="M 192,530 C 290,565 510,565 608,530 C 590,555 310,555 192,530 Z" fill="#997542" opacity="0.25"/>
+
+                <!-- Anéis Frontais (Movimento Sutil Sincronizado) -->
+                <g class="saturno-aneis-movimento">
+                    <path d="M -20,580 C 150,440 650,340 920,440 C 800,490 520,480 320,530 Z" fill="url(#aneisFrenteGrad)" transform="rotate(-4 400 500)"/>
+                </g>
+            </g>
+        </svg>
+
+        <!-- FORMULÁRIO DE CONTATO -->
+        <div class="form-container-hologram">
+            <h2>Base de Mensagem</h2>
+            <form action="" method="POST" id="googleScriptForm">
+                
+                <div class="form-group">
+                    <label for="nome">Digite seu nome:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Robson Dantas" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="assunto">Assunto:</label>
+                    <input type="text" id="assunto" name="assunto" placeholder="Ex: Parceria de Desenvolvimento" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Seu melhor e-mail:</label>
+                    <input type="email" id="email" name="email" placeholder="nome@provedor.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensagem">Mensagem:</label>
+                    <textarea id="mensagem" name="mensagem" placeholder="Escreva os detalhes técnicos da solicitação..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-enviar-hud">TRANSMITIR DADOS</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const GOOGLE_SCRIPT_URL = ""; 
+            const form = document.getElementById("googleScriptForm");
+            if(GOOGLE_SCRIPT_URL !== "") {
+                form.action = GOOGLE_SCRIPT_URL;
+            }
+            window.addEventListener('contextmenu', e => e.preventDefault(), false);
+        });
+    </script>
+</body>
+</html>
+

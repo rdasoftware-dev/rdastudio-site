@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDA Studio - Órbita Tecnológica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Variáveis dinâmicas de controle vetorial manipuladas pelo motor JS */
+            --comet-angle: 0deg;
+            --comet-duration: 8s;
+            --start-x: 600px;
+            --start-y: 0px;
+            --mid-x: 600px;
+            --mid-y: 470px;
+            --under-x: 540px;
+            --under-y: 660px;
+            --end-x: 400px;
+            --end-y: 1300px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #060b14 0%, #020408 70%, #000000 100%);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            font-family: 'Inter', sans-serif;
+            opacity: 0;
+            animation: fadeInCinematic 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .page-fade-out {
+            animation: fadeOutCinematic 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+        }
+
+        @keyframes fadeInCinematic {
+            from { opacity: 0; filter: blur(10px); }
+            to { opacity: 1; filter: blur(0px); }
+        }
+
+        @keyframes fadeOutCinematic {
+            from { opacity: 1; filter: blur(15px); }
+            to { opacity: 0; filter: blur(0px); }
+        }
+
+        /* CANVAS EM TELA CHEIA PARA ENCOSTAR NO MENU HAMBURGUER */
+        .container-espacial {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .canvas-espacial {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        a {
+            cursor: pointer;
+            outline: none;
+        }
+
+        .brilho-alvo {
+            transition: filter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.3s ease;
+        }
+
+        a:hover .brilho-alvo {
+            filter: url(#reflexo-estelar) drop-shadow(0 0 35px rgba(0, 240, 255, 0.95));
+        }
+
+        .rotulo-destroco {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            fill: #00f0ff;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+            pointer-events: none;
+        }
+
+        a:hover .rotulo-destroco {
+            opacity: 1;
+        }
+
+        .camera-dance-satelite {
+            transform-origin: 600px 600px;
+            animation: camera-dance-satelite 40s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes camera-dance-satelite {
+            0% { transform: scale(0.85) translate(0px, 0px) rotate(0deg); filter: brightness(1); }
+            12% { transform: scale(0.88) translate(-30px, 15px) rotate(-5deg); filter: brightness(1.05); }
+            25% { transform: scale(0.82) translate(25px, -25px) rotate(4deg); filter: brightness(0.95); }
+            38% { transform: scale(0.92) translate(-15px, -35px) rotate(-8deg); filter: brightness(1.1); }
+            52% { transform: scale(0.84) translate(30px, 20px) rotate(6deg); filter: brightness(1); }
+            65% { transform: scale(0.89) translate(-10px, -5px) rotate(-3deg); filter: brightness(1.1); }
+            72% { transform: scale(1.05) translate(0px, 0px) rotate(0deg); filter: brightness(1.2); }
+            82% { transform: scale(0.80) translate(-25px, 10px) rotate(-4deg); filter: brightness(0.85); }
+            92% { transform: scale(0.86) translate(20px, -10px) rotate(3deg); filter: brightness(1); }
+            100% { transform: scale(0.85) translate(0px, 0px) rotate(0deg); filter: brightness(1); }
+        }
+
+        .link-sub-1 { animation: balancoSub1 5s ease-in-out infinite alternate; transform-origin: 440px 820px; }
+        .link-sub-2 { animation: balancoSub2 6s ease-in-out infinite alternate; transform-origin: 600px 840px; }
+        .link-sub-3 { animation: balancoSub3 5.5s ease-in-out infinite alternate; transform-origin: 760px 820px; }
+
+        @keyframes balancoSub1 { 0% { transform: translate(-4px, -3px) rotate(-1deg); } 100% { transform: translate(4px, 3px) rotate(1deg); } }
+        @keyframes balancoSub2 { 0% { transform: translate(3px, -5px) rotate(0.5deg); } 100% { transform: translate(-3px, 5px) rotate(-0.5deg); } }
+        @keyframes balancoSub3 { 0% { transform: translate(-5px, 4px) rotate(-1.5deg); } 100% { transform: translate(5px, -4px) rotate(-1.5deg); } }
+
+        .decorativo-drift-1 { animation: driftLongo1 18s linear infinite; transform-origin: center; transform: scale(2.2); }
+        .decorativo-drift-2 { animation: driftLongo2 24s linear infinite; transform-origin: center; transform: scale(2.2); }
+        .decorativo-drift-3 { animation: driftLongo3 20s linear infinite; transform-origin: center; transform: scale(2.2); }
+        .decorativo-drift-4 { animation: driftLongo4 16s linear infinite; transform-origin: center; transform: scale(2.2); }
+
+        @keyframes driftLongo1 { 0% { transform: scale(2.2) translate(-150px, -80px) rotate(0deg); } 100% { transform: scale(2.2) translate(200px, 120px) rotate(360deg); } }
+        @keyframes driftLongo2 { 0% { transform: scale(2.2) translate(200px, -120px) rotate(0deg); } 100% { transform: scale(2.2) translate(-150px, 200px) rotate(-360deg); } }
+        @keyframes driftLongo3 { 0% { transform: scale(2.2) translate(180px, 80px) rotate(0deg); } 100% { transform: scale(2.2) translate(-200px, -120px) rotate(180deg); } }
+        @keyframes driftLongo4 { 0% { transform: scale(2.2) translate(-80px, 180px) rotate(0deg); } 100% { transform: scale(2.2) translate(200px, -80px) rotate(540deg); } }
+
+        /* BASE DO COMETA: ESPERA OCULTO NO TOPO ZERO */
+        .cometa-colossal { 
+            opacity: 0;
+            transform: translate(var(--start-x), var(--start-y)) scale(0.01);
+            transform-origin: 0px 0px !important;
+        }
+
+        /* CLASS DISPARADA EXCLUSIVAMENTE VIA JAVASCRIPT */
+        .animar-cometa {
+            animation: passagemSuperCometa var(--comet-duration) linear forwards;
+        }
+
+        @keyframes passagemSuperCometa {
+            /* 0%: Surge oculto exatamente no topo parametrizado */
+            0% { transform: translate(var(--start-x), var(--start-y)) scale(0.01); opacity: 0; filter: blur(5px); }
+            5% { opacity: 1; filter: blur(0px); }
+            
+            /* 65%: PERSPECTIVA DOS OLHOS - Avança na direção da tela com zoom massivo de 150% (scale 1.5) */
+            65% { transform: translate(var(--mid-x), var(--mid-y)) scale(1.5); opacity: 1; filter: drop-shadow(0 0 45px rgba(0, 240, 255, 0.95)) brightness(1.4); }
+            
+            /* 80%: MUDANÇA DE PERSPECTIVA - Executa a curva, encolhe e mergulha por baixo (atrás) do satélite */
+            80% { transform: translate(var(--under-x), var(--under-y)) scale(0.75); opacity: 0.9; filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.4)); }
+            
+            /* 100%: Desaparece completamente no limbo inferior */
+            100% { transform: translate(var(--end-x), var(--end-y)) scale(0.2); opacity: 0; }
+        }
+
+        .reflexo-satelite-container {
+            transform-origin: 600px 600px;
+        }
+
+        .animar-reflexo {
+            animation: reflexoSateliteCometa var(--comet-duration) linear forwards;
+        }
+
+        @keyframes reflexoSateliteCometa {
+            0%, 58% { filter: brightness(1) drop-shadow(0 0 0px rgba(0,240,255,0)); }
+            64%, 74% { filter: brightness(2.3) drop-shadow(0 0 40px rgba(0, 240, 255, 0.9)); }
+            82%, 100% { filter: brightness(1) drop-shadow(0 0 0px rgba(0,240,255,0)); }
+        }
+
+        .led-azul-pisca { animation: pulseLedAzul 0.4s ease-in-out infinite alternate; }
+        @keyframes pulseLedAzul { 0% { opacity: 0.1; filter: drop-shadow(0 0 1px #00f0ff); } 100% { opacity: 1; filter: drop-shadow(0 0 12px #00f0ff); } }
+        
+        .estrela-pisca { animation: pulseEstrela 3s ease-in-out infinite alternate; }
+        @keyframes pulseEstrela { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        .terminal-typewriter {
+            position: absolute;
+            bottom: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(24px, 4vw, 34px);
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.6px;
+            text-align: center;
+            pointer-events: none;
+            z-index: 99999999;
+            width: 92%;
+            max-width: 1050px;
+            line-height: 1.5;
+            display: inline-block;
+            border-right: 4px solid #00f0ff;
+            animation: piscaCursorTerminal 0.7s step-end infinite;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.85);
+        }
+
+        @keyframes piscaCursorTerminal {
+            from, to { border-color: transparent; }
+            50% { border-color: #00f0ff; }
+        }
+
+        .menu-hamburguer-container {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 999999999;
+        }
+
+        .menu-checkbox { display: none; }
+
+        .botao-hamburguer {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 48px;
+            height: 34px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+
+        .botao-hamburguer span {
+            display: block;
+            width: 100%;
+            height: 5px;
+            background-color: #00f0ff;
+            border-radius: 3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.9);
+        }
+
+        .menu-checkbox:checked ~ .botao-hamburguer span:nth-child(1) { transform: translateY(14px) rotate(45deg); }
+        .menu-checkbox:checked ~ .botao-hamburguer span:nth-child(2) { opacity: 0; }
+        .menu-checkbox:checked ~ .botao-hamburguer span:nth-child(3) { transform: translateY(-15px) rotate(-45deg); }
+
+        .painel-idiomas {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+            background: rgba(3, 7, 15, 0.97);
+            padding: 16px;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 240, 255, 0.5);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.98);
+            animation: fadeInPainel 0.25s ease forwards;
+        }
+
+        .menu-checkbox:checked ~ .painel-idiomas { display: flex; }
+
+        @keyframes fadeInPainel {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .botao-bandeira {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2.5px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.25s ease;
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .botao-bandeira svg { width: 100%; height: 100%; pointer-events: none; display: block; }
+        .botao-bandeira:hover { transform: scale(1.15); background: rgba(0, 240, 255, 0.15); border-color: rgba(0, 240, 255, 0.8); box-shadow: 0 0 15px rgba(0, 240, 255, 0.5); }
+        .botao-bandeira.ativo { border-color: #00f0ff !important; background: rgba(0, 240, 255, 0.25) !important; box-shadow: 0 0 20px rgba(0, 240, 255, 0.8) !important; }
+        .botao-bandeira::after { content: attr(data-tooltip); position: absolute; left: 65px; top: 50%; transform: translateY(-50%) scale(0.9); background: #03070f; color: #00f0ff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.5); opacity: 0; pointer-events: none; transition: all 0.2s ease; }
+    </style>
+</head>
+<body data-page="index">
+
+    <div class="menu-hamburguer-container">
+        <input type="checkbox" id="menu-toggle" class="menu-checkbox">
+        <label for="menu-toggle" class="botao-hamburguer">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        
+        <div class="painel-idiomas">
+            <button class="botao-bandeira" data-lang="ptBR" data-tooltip="Brasil">
+                <svg viewBox="0 0 32 32"><clipPath id="c-br"><circle cx="16" cy="16" r="16"/></clipPath><g clip-path="url(#c-br)"><rect width="32" height="32" fill="#009c3b"/><polygon points="16,4 28,16 16,28 4,16" fill="#ffdf00"/><circle cx="16" cy="16" r="6.5" fill="#002776"/><path d="M 8,17.5 Q 16,14.5 24,17.5" stroke="#ffffff" stroke-width="1" fill="none"/></g></svg>
+            </button>
+            <button class="botao-bandeira" data-lang="enUS" data-tooltip="United States">
+                <svg viewBox="0 0 32 32"><clipPath id="c-us"><circle cx="16" cy="16" r="16"/></clipPath><g clip-path="url(#c-us)"><rect width="32" height="32" fill="#fff"/><rect width="32" height="2.5" y="0" fill="#b22234"/><rect width="32" height="2.5" y="5" fill="#b22234"/><rect width="32" height="2.5" y="10" fill="#b22234"/><rect width="32" height="2.5" y="15" fill="#b22234"/><rect width="32" height="2.5" y="20" fill="#b22234"/><rect width="32" height="2.5" y="25" fill="#b22234"/><rect width="32" height="32" y="30" fill="#b22234"/><rect width="16" height="17" fill="#3c3b6e"/><circle cx="4" cy="4" r="0.7" fill="#fff"/><circle cx="8" cy="4" r="0.7" fill="#fff"/><circle cx="12" cy="4" r="0.7" fill="#fff"/><circle cx="6" cy="8" r="0.7" fill="#fff"/><circle cx="10" cy="8" r="0.7" fill="#fff"/><circle cx="4" cy="12" r="0.7" fill="#fff"/><circle cx="8" cy="12" r="0.7" fill="#fff"/><circle cx="12" cy="12" r="0.7" fill="#fff"/></g></svg>
+            </button>
+        </div>
+    </div>
+    <div class="container-espacial">
+        <svg class="canvas-espacial" viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg" oncontextmenu="return false;">
+            
+            <defs>
+                <filter id="reflexo-estelar" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="10" result="blur" />
+                    <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 3 0"/>
+                    <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+
+                <filter id="super-brilho-cometa" x="-100%" y="-100%" width="300%" height="300%">
+                    <feGaussianBlur stdDeviation="6" result="blur1" />
+                    <feGaussianBlur stdDeviation="14" result="blur2" />
+                    <feMerge>
+                        <feMergeNode in="blur2" />
+                        <feMergeNode in="blur1" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+
+                <linearGradient id="metal-grafite" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#343a40" /><stop offset="50%" stop-color="#6c757d" /><stop offset="100%" stop-color="#1a1d20" />
+                </linearGradient>
+
+                <linearGradient id="aco-escovado" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#495057" /><stop offset="100%" stop-color="#e9ecef" />
+                </linearGradient>
+
+                <linearGradient id="ouro-termico" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#b68500" /><stop offset="30%" stop-color="#ffdf00" /><stop offset="70%" stop-color="#ffca28" /><stop offset="100%" stop-color="#3e2c00" />
+                </linearGradient>
+
+                <linearGradient id="silicio-painel" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#001f3f" /><stop offset="100%" stop-color="#00050a" />
+                </linearGradient>
+
+                <linearGradient id="cauda-cometa" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                    <stop offset="20%" stop-color="#00f0ff" stop-opacity="0.85"/>
+                    <stop offset="60%" stop-color="#0044ff" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+                </linearGradient>
+
+                <radialGradient id="gradiente-terra" cx="40%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="#0a5cb4" /><stop offset="55%" stop-color="#002266" /><stop offset="100%" stop-color="#000311" />
+                </radialGradient>
+                
+                <radialGradient id="sombra-terra" cx="30%" cy="20%" r="80%">
+                    <stop offset="0%" stop-color="#000000" stop-opacity="0" /><stop offset="85%" stop-color="#000000" stop-opacity="0.85" /><stop offset="100%" stop-color="#000000" stop-opacity="1" />
+                </radialGradient>
+
+                <clipPath id="clip-recorte-terra-novo">
+                    <circle cx="240" cy="270" r="230" />
+                </clipPath>
+            </defs>
+
+            <!-- Estrelas de Fundo -->
+            <g fill="#ffffff">
+                <circle cx="150" cy="200" r="2" class="estrela-pisca" style="animation-delay: 0.2s;"/>
+                <circle cx="1050" cy="180" r="2.5" class="estrela-pisca" style="animation-delay: 0.9s;"/>
+                <circle cx="880" cy="900" r="1.5" opacity="0.6"/>
+                <circle cx="250" cy="850" r="3" class="estrela-pisca" style="animation-delay: 1.4s;"/>
+            </g>
+
+            <!-- PLANETA TERRA CORRIGIDO EM POSIÇÃO EMBAIXO DO HAMBURGUER -->
+            <g id="planeta-terra-realista">
+                <circle cx="240" cy="270" r="236" fill="#00bfff" opacity="0.15" filter="blur(16px)" />
+                <g clip-path="url(#clip-recorte-terra-novo)">
+                    <circle cx="240" cy="270" r="230" fill="url(#gradiente-terra)" />
+                    <g transform="translate(-360, 160)">
+                        <path d="M 380,-60 C 420,-50 460,-30 465,0 C 470,20 495,35 520,60 C 545,85 555,115 530,150 C 510,180 480,210 475,250 C 465,290 445,340 440,370 C 430,340 420,290 405,230 C 390,170 375,110 370,50 Z" fill="#143d22" opacity="0.88" stroke="#1b522e" stroke-width="1" />
+                        <path d="M 645,30 C 680,10 740,0 790,30 C 830,50 855,90 840,130 C 825,160 795,190 775,230 C 760,260 745,310 735,350 C 725,320 710,270 700,230 C 685,200 655,170 645,130 C 635,100 630,60 645,30 Z" fill="#1c3b1e" opacity="0.85" stroke="#254e27" stroke-width="1"/>
+                    </g>
+                    <circle cx="240" cy="270" r="230" fill="url(#sombra-terra)" />
+                </g>
+            </g>
+
+            <!-- OBJETO COMETA - Renderizado estruturalmente ANTES do satélite para passar por trás dele -->
+            <g id="wrapper-cometa" style="transform-origin: 600px 600px; transform: rotate(var(--comet-angle));">
+                <g class="cometa-colossal" id="cometa-objeto">
+                    <path d="M -12,0 Q 0,-200 0,-450 Q 0,-200 12,0 Z" fill="url(#cauda-cometa)" />
+                    <circle cx="0" cy="0" r="13" fill="#ffffff" filter="url(#super-brilho-cometa)"/>
+                </g>
+            </g>
+
+            <!-- Destroços Espaciais Ambientais -->
+            <g class="decorativo-drift-1">
+                <polygon points="520,380 560,360 550,400 510,395" fill="url(#metal-grafite)" stroke="#555" stroke-width="0.7"/>
+            </g>
+            <g class="decorativo-drift-2">
+                <rect x="680" y="360" width="22" height="10" fill="url(#aco-escovado)" stroke="#333" transform="rotate(30 680 360)"/>
+            </g>
+
+            <!-- SATÉLITE PRINCIPAL (Fica por cima de tudo no eixo Z nativo do SVG) -->
+            <g class="camera-dance-satelite">
+                <g class="reflexo-satelite-container" id="reflexo-objeto">
+                    <g>
+                        <line x1="180" y1="595" x2="1020" y2="595" stroke="url(#aco-escovado)" stroke-width="12" stroke-linecap="round"/>
+                        <rect x="140" y="520" width="260" height="150" rx="6" fill="url(#silicio-painel)" stroke="url(#aco-escovado)" stroke-width="3"/>
+                        <rect x="800" y="520" width="260" height="150" rx="6" fill="url(#silicio-painel)" stroke="url(#aco-escovado)" stroke-width="3"/>
+                        
+                        <g transform="translate(420, 595)">
+                            <line x1="0" y1="0" x2="70" y2="0" stroke="url(#aco-escovado)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M 5, -35 A 35,35 0 0,0 5,35" fill="url(#ouro-termico)" stroke="#ffdf00" stroke-width="2"/>
+                            <circle cx="-20" cy="0" r="3.5" fill="#00f0ff" class="led-azul-pisca"/>
+                        </g>
+
+                        <polygon points="430,510 510,430 690,430 770,510 770,690 690,770 510,770 430,690" fill="url(#metal-grafite)" stroke="url(#aco-escovado)" stroke-width="2"/>
+                        <rect x="490" y="500" width="220" height="200" rx="5" fill="#0a0f1d" stroke="url(#aco-escovado)" stroke-width="2"/>
+                        
+                        <text x="600" y="578" font-family="'Inter', sans-serif" font-weight="900" font-size="28" fill="#00f0ff" letter-spacing="1" text-anchor="middle">RDAStudio</text>
+                        <text x="600" y="625" font-family="'Inter', sans-serif" font-weight="700" font-size="14" fill="#fff" letter-spacing="3" text-anchor="middle">IDE TECHNOLOGY</text>
+                        
+                        <circle cx="515" cy="520" r="4" fill="#00f0ff" class="led-azul-pisca"/>
+                        <circle cx="685" cy="520" r="4" fill="#00f0ff" class="led-azul-pisca"/>
+                        <circle cx="600" cy="455" r="3.5" fill="#00f0ff" class="led-azul-pisca"/>
+                    </g>
+
+                    <!-- Links de Acesso nos Módulos de Carga -->
+                    <g class="link-sub-1">
+                        <a href="sobre.html" class="link-transicao">
+                            <g class="brilho-alvo" transform="translate(440, 820) scale(1.6) translate(-440, -820)">
+                                <rect x="415" y="795" width="46" height="52" rx="4" fill="url(#ouro-termico)" stroke="#ffdf00" stroke-width="2"/>
+                                <text id="lbl-sobre" x="438" y="872" class="rotulo-destroco" text-anchor="middle">Sobre</text>
+                            </g>
+                        </a>
+                    </g>
+
+                    <g class="link-sub-2">
+                        <a href="servicos.html" class="link-transicao">
+                            <g class="brilho-alvo">
+                                <g transform="translate(600, 840) scale(1.6)">
+                                    <circle cx="0" cy="0" r="14" fill="url(#ouro-termico)" stroke="#ffdf00" stroke-width="1.5"/>
+                                    <circle cx="0" cy="0" r="5" fill="#0a0f1d"/>
+                                </g>
+                                <text id="lbl-servicos" x="600" y="890" class="rotulo-destroco" text-anchor="middle">Serviços</text>
+                            </g>
+                        </a>
+                    </g>
+
+                    <g class="link-sub-3">
+                        <a href="contatos.html" class="link-transicao">
+                            <g class="brilho-alvo" transform="translate(760, 820) scale(1.6) translate(-760, -820)">
+                                <path d="M 735,840 Q 760,805 785,840 Z" fill="url(#ouro-termico)" stroke="#ffdf00" stroke-width="2"/>
+                                <circle cx="760" cy="792" r="4.5" fill="#00f0ff" class="led-azul-pisca"/>
+                                <text id="lbl-contatos" x="760" y="872" class="rotulo-destroco" text-anchor="middle">Contatos</text>
+                            </g>
+                        </a>
+                    </g>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <div class="terminal-typewriter" id="typewriter"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Transição suave de páginas
+            const links = document.querySelectorAll(".link-transicao");
+            links.forEach(link => {
+                link.addEventListener("click", function(event) {
+                    const destino = this.getAttribute("href");
+                    if (destino && destino !== "#") {
+                        event.preventDefault();
+                        document.body.classList.add("page-fade-out");
+                        setTimeout(() => { window.location.href = destino; }, 1200);
+                    }
+                });
+            });
+
+            // Proteções de Segurança do Front
+            window.addEventListener('contextmenu', e => e.preventDefault(), false);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || e.keyCode === 123 || (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'u' || e.key === 'U'))) {
+                    e.preventDefault();
+                }
+            }, false);
+
+            // MOTOR DETERMINÍSTICO DE ESTADOS (4 APARIÇÕES EXCLUSIVAS COM VARIANTES DE ROTA)
+            const cometaObjeto = document.getElementById('cometa-objeto');
+            const reflexoObjeto = document.getElementById('reflexo-objeto');
+            
+            let indiceAparição = 0;
+
+            // Banco de rotas exclusivas com alteração vetorial de direção
+            const matrizDeRotas = [
+                { tempo: 8,  sX: '600px', sY: '0px', mX: '600px', mY: '470px', uX: '540px', uY: '660px', eX: '400px', eY: '1300px' },
+                { tempo: 16, sX: '150px', sY: '0px', mX: '560px', mY: '480px', uX: '620px', uY: '670px', eX: '950px', eY: '1300px' },
+                { tempo: 24, sX: '1050px',sY: '0px', mX: '640px', mY: '460px', uX: '570px', uY: '650px', eX: '150px', eY: '1300px' },
+                { tempo: 32, sX: '450px', sY: '0px', mX: '590px', mY: '475px', uX: '530px', uY: '665px', eX: '300px', eY: '1300px' }
+            ];
+
+            function executarSequenciaCometa() {
+                // Fim absoluto após a quarta aparição concluída: remove o cometa para sempre
+                if (indiceAparição >= matrizDeRotas.length) {
+                    if (cometaObjeto) cometaObjeto.style.display = 'none';
+                    return;
+                }
+
+                const rotaAtual = matrizDeRotas[indiceAparição];
+
+                // Atualiza as variáveis CSS nativas para reconfigurar a física e direção do vetor
+                document.documentElement.style.setProperty('--comet-duration', `${rotaAtual.tempo}s`);
+                document.documentElement.style.setProperty('--start-x', rotaAtual.sX);
+                document.documentElement.style.setProperty('--start-y', rotaAtual.sY);
+                document.documentElement.style.setProperty('--mid-x', rotaAtual.mX);
+                document.documentElement.style.setProperty('--mid-y', rotaAtual.mY);
+                document.documentElement.style.setProperty('--under-x', rotaAtual.uX);
+                document.documentElement.style.setProperty('--under-y', rotaAtual.uY);
+                document.documentElement.style.setProperty('--end-x', rotaAtual.eX);
+
+                // Garante que o cometa está limpo de classes para resetar o frame
+                cometaObjeto.classList.remove('animar-cometa');
+                if (reflexoObjeto) reflexoObjeto.classList.remove('animar-reflexo');
+
+                // Força reflow no navegador para resetar o estado de renderização
+                void cometaObjeto.offsetWidth;
+
+                // Dispara o voo tridimensional injetando a classe animadora
+                cometaObjeto.classList.add('animar-cometa');
+                if (reflexoObjeto) reflexoObjeto.classList.add('animar-reflexo');
+
+                // Escuta o término exato do tempo de voo estipulado para a rota
+                setTimeout(() => {
+                    // Desliga as classes para ocultar imediatamente o elemento no topo zero
+                    cometaObjeto.classList.remove('animar-cometa');
+                    if (reflexoObjeto) reflexoObjeto.classList.remove('animar-reflexo');
+
+                    indiceAparição++;
+
+                    // Se ainda não completou as 4 exibições, entra no hiato oculto de 40 segundos
+                    if (indiceAparição < matrizDeRotas.length) {
+                        setTimeout(executarSequenciaCometa, 40000);
+                    } else {
+                        // Invoca a última verificação para eliminação permanente do DOM
+                        executarSequenciaCometa();
+                    }
+                }, rotaAtual.tempo * 1000);
+            }
+
+            // Inicia o primeiro ciclo (8 segundos) imediatamente
+            if (cometaObjeto) {
+                executarSequenciaCometa();
+            }
+
+            // TEXTOS DO TERMINAL (MÁQUINA DE ESCREVER)
+            const caixaTexto = document.getElementById("typewriter");
+            let indexFraseGlobal = 0;
+            let indexLetraGlobal = 0;
+
+            const bancoDeFrasesCorrigidas = [
+                "RDAStudio, IDE Free Pascal para Linux.",
+                "RDAStudio, compila para Windows, Linux e Android.",
+                "RDAStudio, uma IA para lhe ajudar com os códigos do seu projeto.",
+                "RDAStudio, programe em Free Pascal. Ou descreva seu projeto para a IA.",
+                "RDAStudio, você pode colocar seus filhos para aprender lógica de programação.",
+                "RDAStudio, entre nas comunidades e converse com outros programadores."
+            ];
+
+            function escreverFraseDoDicionario() {
+                const fraseAlvo = bancoDeFrasesCorrigidas[indexFraseGlobal];
+                if (indexLetraGlobal < fraseAlvo.length) {
+                    caixaTexto.textContent += fraseAlvo.charAt(indexLetraGlobal);
+                    indexLetraGlobal++;
+                    setTimeout(escreverFraseDoDicionario, 45);
+                } else {
+                    setTimeout(limparEAvancarFrase, 3500);
+                }
+            }
+
+            function limparEAvancarFrase() {
+                caixaTexto.textContent = "";
+                indexLetraGlobal = 0;
+                indexFraseGlobal = (indexFraseGlobal + 1) % bancoDeFrasesCorrigidas.length;
+                setTimeout(escreverFraseDoDicionario, 400);
+            }
+
+            escreverFraseDoDicionario();
+        });
+    </script>
+</body>
+</html>
+

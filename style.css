@@ -1,0 +1,327 @@
+/* ==========================================================================
+   CONFIGURAÇÕES GERAIS E RESETS
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #070a0e;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   ESTILOS DA HOME (INDEX.HTML) RECONSTRUÍDA
+   ========================================================================== */
+.home-universe {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: radial-gradient(circle at center, #0f172a 0%, #070a0e 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.earth-background {
+    position: absolute;
+    bottom: -50px;
+    width: 140%;
+    max-width: 900px;
+    z-index: 2;
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+.satelite {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140px;
+    z-index: 10;
+    filter: drop-shadow(0 0 10px rgba(99, 179, 237, 0.3));
+    transition: filter 0.4s ease;
+}
+
+.satelite.clareando {
+    animation: satelliteLightUp 8s linear forwards;
+}
+
+/* Destroços Espaciais */
+.debris {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.debris-1 {
+    width: 6px;
+    height: 4px;
+    top: 20%;
+    left: 15%;
+    background: #4a5568;
+    animation: driftDebris 25s linear infinite;
+}
+
+.debris-2 {
+    width: 8px;
+    height: 8px;
+    top: 60%;
+    left: 80%;
+    background: #718096;
+    border-radius: 50%;
+    animation: driftDebris 35s linear infinite reverse;
+}
+
+.debris-3 {
+    width: 4px;
+    height: 10px;
+    top: 75%;
+    left: 30%;
+    background: #2d3748;
+    animation: driftDebris 18s linear infinite;
+}
+
+/* Cometa da Home */
+.cometa {
+    position: absolute;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    transform-origin: center;
+    opacity: 0;
+}
+
+.cometa.rodando {
+    animation: cometOrbit 8s linear forwards;
+}
+
+.cometa-brilho {
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 25px 12px rgba(66, 153, 225, 0.9), 0 0 45px 25px rgba(255, 255, 255, 0.6);
+    position: relative;
+}
+
+.cometa-brilho::after {
+    content: '';
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 220px;
+    height: 14px;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0), rgba(66, 153, 225, 0.7), #ffffff);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+/* ==========================================================================
+   ESTILOS DE MARTE (SOBRE.HTML) - CINEMATOGRÁFICO
+   ========================================================================== */
+.mars-universe {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(to bottom, #1a0b05 0%, #3a150b 70%, #5c2214 100%);
+    overflow: hidden;
+    transition: transform 3s ease-in-out, background 3s ease-in-out;
+}
+
+/* Estrelas de Marte */
+.mars-stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
+    background-size: 240px 240px, 160px 160px;
+    background-position: 0 0, 40px 60px;
+    opacity: 0.6;
+}
+
+.mars-mountains {
+    position: absolute;
+    bottom: 80px;
+    width: 100%;
+    height: 160px;
+    z-index: 2;
+    pointer-events: none;
+    transition: transform 3s ease-in-out;
+}
+
+.mars-floor {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 90px;
+    background: linear-gradient(to bottom, #7b341e 0%, #4a1d13 100%);
+    box-shadow: inset 0 10px 20px rgba(0,0,0,0.4);
+    z-index: 3;
+    transition: transform 3s ease-in-out;
+}
+
+/* Caixa de Texto HUD Estilo Espacial */
+.project-hud {
+    position: absolute;
+    top: 25px;
+    left: 5%;
+    right: 5%;
+    background: rgba(26, 11, 5, 0.85);
+    border: 1.5px solid #dd6b20;
+    border-radius: 8px;
+    padding: 16px;
+    z-index: 10;
+    color: #edf2f7;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    transition: opacity 0.5s ease;
+}
+
+.project-hud h3 {
+    color: #ed8936;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.project-hud p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #cbd5e0;
+}
+
+/* O Veículo Rover Chinês */
+.mars-rover {
+    position: absolute;
+    bottom: 45px;
+    left: -160px; /* Inicia fora da tela esquerda */
+    width: 140px;
+    z-index: 5;
+    transition: left 4s ease-in-out, transform 1s ease;
+}
+
+/* Animação das rodas girando */
+.rover-wheel {
+    transform-origin: center;
+    animation: wheelRoll 1s linear infinite;
+}
+
+/* Painel de Créditos Final Invisível no Início */
+.credits-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #0d1527 0%, #04070f 100%);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2.5s ease-in-out;
+}
+
+.credits-content {
+    text-align: center;
+    color: #ffffff;
+    padding: 20px;
+    transform: scale(0.3);
+    transition: transform 3s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.credits-content h1 {
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(66, 153, 225, 0.6);
+}
+
+.credits-content p {
+    color: #a0aec0;
+    font-size: 1rem;
+    margin-bottom: 30px;
+}
+
+.email-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 2px solid #4299e1;
+    color: #4299e1;
+    padding: 12px 24px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+    box-shadow: 0 0 15px rgba(66, 153, 225, 0.2);
+    transition: all 0.3s ease;
+}
+
+.email-btn:active {
+    background: #4299e1;
+    color: #ffffff;
+    box-shadow: 0 0 25px rgba(66, 153, 225, 0.6);
+}
+
+/* Transições de Câmera Ativadas por JS */
+.camera-tilt-up {
+    background: #04070f;
+}
+.camera-tilt-up .mars-mountains,
+.camera-tilt-up .mars-floor,
+.camera-tilt-up .mars-rover,
+.camera-tilt-up .project-hud {
+    transform: translateY(100vh);
+}
+
+.camera-tilt-up .credits-screen {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.camera-tilt-up .credits-content {
+    transform: scale(1);
+}
+
+/* ==========================================================================
+   KEYFRAMES DAS ANIMAÇÕES
+   ========================================================================== */
+@keyframes wheelRoll {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes driftDebris {
+    from { transform: translate(0, 0) rotate(0deg); }
+    to { transform: translate(60px, -40px) rotate(360deg); }
+}
+
+@keyframes cometOrbit {
+    0% { top: -15%; left: 95%; transform: scale(0.1) rotate(-135deg); opacity: 0; }
+    12% { opacity: 1; }
+    25% { top: 35%; left: 65%; transform: scale(0.6) rotate(-135deg); }
+    48% { top: 48%; left: 52%; transform: scale(1.2) rotate(-135deg); }
+    70% { top: 60%; left: 40%; transform: scale(1.4) rotate(-135deg); opacity: 1; }
+    88% { opacity: 0; }
+    100% { top: 115%; left: -15%; transform: scale(1.6) rotate(-135deg); opacity: 0; }
+}
+
+@keyframes satelliteLightUp {
+    0%, 25% { filter: brightness(1) drop-shadow(0 0 0px rgba(0,0,0,0)); }
+    42%, 62% { filter: brightness(2.3) drop-shadow(0 0 35px rgba(99, 179, 237, 0.9)); }
+    78%, 100% { filter: brightness(1) drop-shadow(0 0 0px rgba(0,0,0,0)); }
+}
+

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - RDAStudio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: #060201;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        /* BOTÃO SATÉLITE UNIVERSAL (TOPO DIREITO) */
+        .btn-satelite-topo {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 55px;
+            height: 55px;
+            z-index: 9999;
+            background: rgba(26, 10, 5, 0.85);
+            border: 2px solid #e05a36;
+            border-radius: 50%;
+            padding: 8px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(224, 90, 54, 0.3);
+        }
+        .btn-satelite-topo:hover {
+            transform: scale(1.15) rotate(20deg);
+            box-shadow: 0 0 25px #e05a36;
+        }
+
+        /* PALCO CINEMATOGRÁFICO DE MARTE */
+        .teatro-marte-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* CAMADA 1: FOTO PARADA DO VEÍCULO REAL NO PLANETA */
+        .foto-rover-real {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1612892483236-42d68a57623d?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            z-index: 5;
+            transition: opacity 2s ease-in-out;
+        }
+
+        /* CAMADA 2: TERRENO MARCIANO REAL (PERSPECTIVA DA CÂMERA DO ROVER) */
+        .terreno-marte-perspectiva {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(to top, rgba(12, 4, 2, 0.4), transparent), url('https://images.unsplash.com/photo-1545156521-77bd85671d30?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center 70%;
+            z-index: 2;
+            transition: transform 3.5s cubic-bezier(0.4, 0, 0.2, 1), filter 2s ease;
+        }
+
+        /* CAMADA 3: CÉU ESTRELADO REALISTA FINAL */
+        .ceu-estrelado {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, #110502 0%, #050100 100%);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+        .ceu-estrelado::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#ffffff 1px, transparent 1px), radial-gradient(#ffffff 1.5px, transparent 1.5px);
+            background-size: 200px 200px, 350px 350px;
+            opacity: 0.75;
+        }
+
+        /* HUD DE INFORMAÇÕES DO RDASTUDIO (POSICIONADO MAIS ACIMA) */
+        .hud-rdastudio {
+            position: absolute;
+            top: 8%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            width: 85%;
+            max-width: 680px;
+            background: rgba(20, 6, 3, 0.9);
+            border: 2px solid #e05a36;
+            box-shadow: 0 0 35px rgba(224, 90, 54, 0.3);
+            border-radius: 10px;
+            padding: 24px;
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        .hud-rdastudio.ativo {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .hud-rdastudio h3 {
+            color: #fbd38d;
+            font-size: 25px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .hud-rdastudio p {
+            color: #e2e8f0;
+            font-size: 16.5px;
+            line-height: 1.6;
+        }
+
+        /* SEQUÊNCIA DE MOVIMENTOS DE CÂMERA (ESTADOS) */
+        .fase-perspectiva .foto-rover-real {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Mudança de perspectiva da câmera simulando giros olhando o terreno */
+        .giro-esquerda .terreno-marte-perspectiva { transform: scale(1.08) rotate(-2deg) translateX(30px); }
+        .giro-direita .terreno-marte-perspectiva { transform: scale(1.08) rotate(2deg) translateX(-30px); }
+
+        /* Movimento final olhando para o céu */
+        .olhar-para-o-ceu .terreno-marte-perspectiva {
+            transform: translateY(100vh) scale(1.5);
+            filter: blur(10px);
+        }
+        .olhar-para-o-ceu .ceu-estrelado {
+            opacity: 1;
+        }
+
+        /* CRÉDITOS FINAIS COORDENADOS COM ZOOM SEGURO SEM CORTES */
+        .container-creditos-finais {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 25;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.85); /* Mantém escala interna segura contra cortes */
+            transition: opacity 2.5s cubic-bezier(0.4, 0, 0.2, 1), transform 3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .olhar-para-o-ceu .container-creditos-finais {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1); /* Zoom-in suave perfeitamente calibrado */
+        }
+        .conteudo-creditos {
+            text-align: center;
+            padding: 30px;
+        }
+        .conteudo-creditos h1 {
+            font-size: 42px;
+            letter-spacing: 4px;
+            color: #ffffff;
+            margin-bottom: 12px;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+            font-weight: 800;
+        }
+        .email-link-sistema {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #dd6b20 0%, #b84e14 100%);
+            color: white;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 17px;
+            letter-spacing: 1px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 25px rgba(221, 107, 32, 0.4);
+        }
+        .email-link-sistema:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(221, 107, 32, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BOTÃO UNIVERSAL SATÉLITE -->
+    <a href="index.html" class="btn-satelite-topo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="40" width="20" height="20" rx="3" fill="#e2e8f0" stroke="#4a5568" stroke-width="2"/>
+            <path d="M 10,45 L 40,48 L 40,52 L 10,55 Z" fill="#3182ce" stroke="#1a365d" stroke-width="1"/>
+            <path d="M 90,45 L 60,48 L 60,52 L 90,55 Z" fill="#3182ce" stroke="#1a365d" stroke-width="1"/>
+            <circle cx="50" cy="26" r="7" fill="#cbd5e1" stroke="#4a5568" stroke-width="1.5"/>
+            <line x1="50" y1="40" x2="50" y2="33" stroke="#4a5568" stroke-width="2"/>
+        </svg>
+    </a>
+
+    <div class="teatro-marte-wrapper" id="palcoGlobal">
+        
+        <!-- CAMADA 1: FOTO ORIGINAL DO ROVER REAL (ABERTURA ESTÁTICA) -->
+        <div class="foto-rover-real"></div>
+
+        <!-- CAMADA 2: PERSPECTIVA REALISTA DA CÂMERA OLHANDO MARTE -->
+        <div class="terreno-marte-perspectiva"></div>
+
+        <!-- CAMADA 3: ESPAÇO SIDERAL PROFUNDO -->
+        <div class="ceu-estrelado"></div>
+
+        <!-- PAINEL HUD DE DADOS DO SCRIPT -->
+        <div class="hud-rdastudio" id="painelTextoHud">
+            <h3 id="tituloHud">Conectando Satélite...</h3>
+            <p id="textoHud">Recebendo transmissão telemétrica.</p>
+        </div>
+
+        <!-- CRÉDITOS FINAIS AMBIENTADOS NAS ESTRELAS COM SEGURANÇA VISUAL -->
+        <div class="container-creditos-finais">
+            <div class="conteudo-creditos">
+                <h1>Robson Dantas de Aguiar</h1>
+                <p style="font-size: 18px; color: #cbd5e1; margin-bottom: 25px; letter-spacing: 3px;">contato@rdastudio.com.br</p>
+                <a href="mailto:contato@rdastudio.com.br" class="email-link-sistema">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    ABRIR CAIXA DE ENTRADA
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const palco = document.getElementById("palcoGlobal");
+            const hud = document.getElementById("painelTextoHud");
+            const tituloHud = document.getElementById("tituloHud");
+            const textoHud = document.getElementById("textoHud");
+
+            // Roteiro cinemático das paradas de câmera e textos informativos sobre a RDAStudio
+            const cronogramaMissoes = [
+                {
+                    classeCâmera: "giro-esquerda",
+                    titulo: "RDAStudio",
+                    texto: "Desenvolvimento técnico refinado focado em entregar arquiteturas limpas e sistemas robustos sob medida."
+                },
+                {
+                    classeCâmera: "giro-direita",
+                    titulo: "Inovação Estável",
+                    texto: "Soluções multiplataforma integradas com alto nível de portabilidade, performance e segurança estrutural."
+                },
+                {
+                    classeCâmera: "fase-final-preparo",
+                    titulo: "Engenharia Eficiente",
+                    texto: "Criamos ecossistemas fluidos que unificam o controle das suas regras de negócio em qualquer ambiente."
+                }
+            ];
+
+            // 1. Início: Mantém a foto real do veículo estática por 3,5 segundos
+            setTimeout(() => {
+                // Ativa a transição para a visualização interna da câmera do Rover
+                palco.classList.add("fase-perspectiva");
+                executarSequenciaHolografica(0);
+            }, 3500);
+
+            function executarSequenciaHolografica(passo) {
+                if (passo < cronogramaMissoes.length) {
+                    // Limpa estados de câmera antigos e esconde o painel anterior
+                    palco.classList.remove("giro-esquerda", "giro-direita");
+                    hud.classList.remove("ativo");
+
+                    setTimeout(() => {
+                        // Aplica o novo posicionamento de câmera da parada atual
+                        if(cronogramaMissoes[passo].classeCâmera !== "fase-final-preparo") {
+                            palco.classList.add(cronogramaMissoes[passo].classeCâmera);
+                        }
+
+                        // Atualiza as strings do HUD técnico
+                        tituloHud.innerText = cronogramaMissoes[passo].titulo;
+                        textoHud.innerText = cronogramaMissoes[passo].texto;
+                        hud.classList.add("ativo");
+
+                        // Agenda a próxima transição após 5 segundos estabilizado
+                        setTimeout(() => {
+                            executarSequenciaHolografica(passo + 1);
+                        }, 5000);
+
+                    }, 600); // Intervalo de sincronia do fade do painel
+                } else {
+                    // Encerramento: Oculta o HUD e levanta a câmera em direção ao céu estrelado
+                    hud.classList.remove("ativo");
+                    setTimeout(() => {
+                        palco.classList.add("olhar-para-o-ceu");
+                    }, 800);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
